@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="What Olivier Malherbe built with Claude Code in a regulated asset management company: case studies, architecture diagrams, synthetic examples and product feedback.">
+
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>Olivier Malherbe's Claude Code work</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@87..100,500..800&family=JetBrains+Mono:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+:root{
+  --ground:#F3F5F4; --surface:#FFFFFF; --ink:#16202A; --ink-2:#2B3742; --muted:#56616D; --faint:#7A8590;
+  --rule:#D5DBD8; --rule-strong:#B9C2BE; --accent:#1F4E79; --accent-soft:#E3ECF5;
+  --go:#0E7A5A; --go-soft:#E0F1EA; --nogo:#B23A2A; --nogo-soft:#F7E4E0; --warn:#9A6B00; --warn-soft:#F6EDD5;
+  --code-bg:#EDF1EF; --chart:#2F6FB3;
+  --display:"Archivo", "Helvetica Neue", Arial, sans-serif;
+  --body:"Source Serif 4", "Source Serif Pro", Georgia, "Times New Roman", serif;
+  --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#0F1417; --surface:#151C21; --ink:#E4E9EC; --ink-2:#CBD3D8; --muted:#9AA7B1; --faint:#7C8993;
+    --rule:#26313A; --rule-strong:#35424C; --accent:#8DB6E6; --accent-soft:#1B2A38;
+    --go:#4FC39B; --go-soft:#13291F; --nogo:#F0907C; --nogo-soft:#32190F; --warn:#E3B34C; --warn-soft:#2E2410;
+    --code-bg:#1A2329; --chart:#5A93D8;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#0F1417; --surface:#151C21; --ink:#E4E9EC; --ink-2:#CBD3D8; --muted:#9AA7B1; --faint:#7C8993;
+  --rule:#26313A; --rule-strong:#35424C; --accent:#8DB6E6; --accent-soft:#1B2A38;
+  --go:#4FC39B; --go-soft:#13291F; --nogo:#F0907C; --nogo-soft:#32190F; --warn:#E3B34C; --warn-soft:#2E2410;
+  --code-bg:#1A2329; --chart:#5A93D8;
+}
+body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:clamp(16px,4vw,40px);padding-block:40px 64px;}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+h1,h2,h3{font-family:var(--display);color:var(--ink);text-wrap:balance;letter-spacing:-0.01em;line-height:1.15;margin:0}
+h1{font-size:clamp(30px,4.4vw,44px);font-weight:760;font-stretch:92%}
+h2{font-size:clamp(24px,3vw,30px);font-weight:720;font-stretch:94%}
+h3{font-size:18px;font-weight:700}
+p{margin:0}
+.label{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:clamp(18px,2vw,20px);color:var(--ink-2);max-width:62ch}
+.mono{font-family:var(--mono)}
+/* En-tête */
+.masthead{display:grid;gap:18px;padding-bottom:28px;border-bottom:1px solid var(--rule-strong)}
+.masthead .who{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline;font-family:var(--mono);font-size:13px;color:var(--muted)}
+.masthead .who strong{font-family:var(--display);font-size:15px;color:var(--ink);font-weight:700;letter-spacing:.02em}
+.ledger{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0;border:1px solid var(--rule-strong);background:var(--surface);margin-top:6px}
+.ledger div{padding:14px 16px;border-right:1px solid var(--rule);display:grid;gap:4px}
+.ledger div:last-child{border-right:0}
+.ledger .v{font-family:var(--display);font-size:24px;font-weight:760;font-variant-numeric:tabular-nums;color:var(--ink)}
+.ledger .k{font-size:13.5px;line-height:1.35;color:var(--muted)}
+.note{font-size:14px;color:var(--muted);max-width:75ch}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px 18px;padding-block:18px;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:13px}
+nav.toc a{color:var(--ink-2);text-decoration:none}
+nav.toc a:hover{color:var(--accent);text-decoration:underline}
+/* Sections */
+section.case{display:grid;grid-template-columns:230px minmax(0,1fr);gap:28px 44px;padding-block:44px;border-bottom:1px solid var(--rule)}
+.rail{display:grid;gap:14px;align-content:start;align-self:start}
+.rail .meta{display:grid;gap:3px}
+.rail .meta span:last-child{font-size:14.5px;color:var(--ink-2);line-height:1.35}
+.stamp{justify-self:start;font-family:var(--mono);font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border:1.5px solid currentColor;border-radius:2px}
+.stamp.production{color:var(--go);background:var(--go-soft)}
+.stamp.pilot{color:var(--warn);background:var(--warn-soft)}
+.stamp.build{color:var(--accent);background:var(--accent-soft)}
+.metrics{display:grid;gap:10px;border-top:1px solid var(--rule);padding-top:12px}
+.metrics div{display:grid;gap:1px}
+.metrics .v{font-family:var(--display);font-size:20px;font-weight:740;font-variant-numeric:tabular-nums}
+.metrics .k{font-size:13.5px;line-height:1.35;color:var(--muted)}
+.main{display:grid;gap:20px;min-width:0}
+.main > p, .main ul{max-width:68ch}
+.main ul{margin:0;padding-left:1.1em;display:grid;gap:6px}
+.main li::marker{color:var(--faint)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px 32px}
+.cols h3{margin-bottom:8px;font-size:15px;letter-spacing:.02em}
+figure{margin:0;background:var(--surface);border:1px solid var(--rule);padding:18px 18px 12px;display:grid;gap:10px}
+figure .scroll{overflow-x:auto}
+figure svg{display:block;width:100%;height:auto;min-width:680px;color:var(--ink)}
+@media (min-width:821px){section.case .main figure.wide-fig{margin-left:-274px}}
+figcaption{font-size:14px;color:var(--muted);line-height:1.45}
+.limits{border-left:2px solid var(--rule-strong);padding-left:16px;display:grid;gap:6px}
+.limits .label{margin-bottom:2px}
+pre{margin:0;background:var(--code-bg);border:1px solid var(--rule);padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.55;color:var(--ink-2);tab-size:2}
+pre .c{color:var(--faint)} pre .k{color:var(--accent);font-weight:600}
+.synthetic{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--warn)}
+.cite{background:var(--surface);border:1px solid var(--rule);display:grid;grid-template-columns:auto 1fr;gap:6px 16px;padding:16px 18px;font-size:15px;max-width:68ch}
+.cite dt{font-family:var(--mono);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding-top:3px}
+.cite dd{margin:0}
+.notes{display:grid;gap:14px;max-width:76ch}
+.notes article{display:grid;gap:8px;padding-block:14px;border-top:1px solid var(--rule)}
+.notes dl{display:grid;grid-template-columns:120px 1fr;gap:6px 18px;margin:0}
+.notes article h3{font-size:16px}
+.notes dt{font-family:var(--mono);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding-top:4px}
+.notes dd{margin:0}
+footer{padding-top:32px;display:grid;gap:10px;font-size:14.5px;color:var(--muted)}
+footer .contact{font-family:var(--mono);font-size:13.5px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:6px 18px}
+@media (max-width:820px){
+  section.case{grid-template-columns:1fr;gap:18px}
+  .rail{position:static;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .rail .stamp{grid-column:1 / -1}
+  .metrics{grid-column:1 / -1;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+  .ledger div{border-right:0;border-bottom:1px solid var(--rule)}
+  .notes dl{grid-template-columns:1fr}
+  body{font-size:16px}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+/* Schémas */
+.d-box{fill:var(--surface);stroke:var(--rule-strong);stroke-width:1.2}
+.d-agent{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.3}
+.d-det{fill:var(--code-bg);stroke:var(--rule-strong);stroke-width:1.2}
+.d-human{fill:var(--warn-soft);stroke:var(--warn);stroke-width:1.3}
+.d-out{fill:var(--go-soft);stroke:var(--go);stroke-width:1.3}
+.d-t{fill:var(--ink);font-family:var(--display);font-size:13px;font-weight:650}
+.d-s{fill:var(--muted);font-family:var(--mono);font-size:11px}
+.d-e{stroke:var(--muted);stroke-width:1.3;fill:none}
+.d-e.dash{stroke-dasharray:4 3}
+.d-l{fill:var(--muted);font-family:var(--mono);font-size:11px}
+.d-arrow{fill:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;display:inline-block;border:1.3px solid}
+.legend .agent{background:var(--accent-soft);border-color:var(--accent)}
+.legend .det{background:var(--code-bg);border-color:var(--rule-strong)}
+.legend .human{background:var(--warn-soft);border-color:var(--warn)}
+.legend .out{background:var(--go-soft);border-color:var(--go)}
+/* Graphique */
+.chart-grid{stroke:var(--rule);stroke-width:1}
+.chart-base{stroke:var(--rule-strong);stroke-width:1.2}
+.chart-bar{fill:var(--chart)}
+.chart-target{fill:none;stroke:var(--chart);stroke-width:1.6;stroke-dasharray:5 4}
+.chart-t{fill:var(--ink);font-family:var(--display);font-size:13px;font-weight:700}
+.chart-s{fill:var(--muted);font-family:var(--mono);font-size:11px}
+.chart-wrap svg{min-width:0;max-width:560px}
+details.data{font-size:14px;color:var(--muted)}
+details.data summary{cursor:pointer;font-family:var(--mono);font-size:12px}
+details.data table{border-collapse:collapse;margin-top:8px;font-variant-numeric:tabular-nums}
+details.data td,details.data th{border-bottom:1px solid var(--rule);padding:4px 12px 4px 0;text-align:left}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.quote{border-left:3px solid var(--accent);padding:4px 0 4px 16px;font-size:16px;color:var(--ink-2);max-width:68ch}
+.founders{display:grid;gap:14px;max-width:76ch;padding:0;margin:0;list-style:none;counter-reset:f}
+.founders li{display:grid;grid-template-columns:28px 1fr;gap:4px 12px}
+.founders li::before{counter-increment:f;content:counter(f);font-family:var(--mono);font-weight:700;color:var(--accent)}
+.founders strong{font-family:var(--display)}
+section.wide{padding-block:44px;border-bottom:1px solid var(--rule);display:grid;gap:22px}
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="masthead">
+  <div class="who"><strong>OLIVIER MALHERBE</strong><span>Founder-operator · Head of Strategy &amp; Operations, AMF-regulated private-markets asset management company</span><span>Paris</span></div>
+  <p class="label">What I built with Claude Code · May–September 2026</p>
+  <h1>I brought Claude into a regulated asset management company, and I am rebuilding its operations from the ground up as an AI-native, human-supervised agent system.</h1>
+  <p class="lede">I am a Centrale Paris engineer, the co-founder of a B2B fintech startup that built subscription and reporting software for private-equity funds, and a business angel in three startups. In 2024–25 I built agent prototypes on the Claude API, orchestrated in n8n, for VC dealflow screening and LP reporting. I joined an asset management company with 40+ funds in February 2026 to turn its operations around. My goal: agent-run operations under human supervision by the end of 2026. This page shows what I have built with Claude Code since then, how I build, and what broke along the way; what carries over to founders and VCs is <a href="#founders">at the end</a>.</p>
+  <div class="ledger" role="list">
+    <div role="listitem"><span class="v">0 → 25</span><span class="k">Claude users across the group since the May 2026 rollout, 10 of them on Team seats</span></div>
+    <div role="listitem"><span class="v">0% → ~70%</span><span class="k">recurring period-end deliverables on time, 31 Dec 2025 vs 30 Jun 2026 reporting dates</span></div>
+    <div role="listitem"><span class="v">4 weeks</span><span class="k">from a spreadsheet to a production workflow app, built solo with Claude Code</span></div>
+    <div role="listitem"><span class="v">20+</span><span class="k">funds whose investor documents get independent Claude checks before sending</span></div>
+    <div role="listitem"><span class="v">2,155</span><span class="k">facts extracted from 45 fund agreements, each with its article reference or an explicit “not located”</span></div>
+  </div>
+  <p class="note">Every data example on this page is synthetic. Funds, investors, clients and partners are not named.</p>
+</header>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#adoption">Claude adoption</a><a href="#method">How I build</a><a href="#app">Workflow app</a><a href="#qc">Quality control</a><a href="#agreements">Fund agreements</a><a href="#kpi">KPIs in SQL</a><a href="#mandate">Winning a mandate</a><a href="#notes">Field notes</a><a href="#partners">Partner reviews</a><a href="#founders">For founders &amp; VCs</a>
+</nav>
+
+<!-- ADOPTION -->
+<section class="case" id="adoption">
+  <aside class="rail">
+    <span class="stamp production">Rolled out</span>
+    <div class="meta"><span class="label">Period</span><span>May 2026 to today</span></div>
+    <div class="meta"><span class="label">Scope</span><span>Asset manager, then the whole group</span></div>
+    <div class="metrics">
+      <div><span class="v">0 → 25</span><span class="k">Claude users, 10 of them on Team seats</span></div>
+      <div><span class="v">25</span><span class="k">people trained: all 20 staff of the asset management company and 5 at the group's investment firm</span></div>
+      <div><span class="v">3 months</span><span class="k">from joining the firm to the first rollout</span></div>
+    </div>
+  </aside>
+  <div class="main">
+    <p class="label">Case 1</p>
+    <h2>Bringing Claude into a regulated firm</h2>
+    <p class="lede">An agent platform was already in place and nobody had a Claude account. I made the case, rolled Claude out, and now ship Claude Code plugins and Cowork skills that colleagues run in Cowork without ever opening a terminal.</p>
+    <p>The operations teams are non-technical and their documents carry confidential investor data. I had to justify a second AI vendor to the Chairman and the leadership team, then get the tools I build into the hands of finance controllers and operations staff.</p>
+    <div class="cols">
+      <div><h3>What I did</h3><ul>
+        <li>Built a total-cost-of-ownership model that costed Claude Team and Enterprise next to the incumbent platform, and a one-page note recommending a phased rollout. It won over the Chairman and leadership.</li>
+        <li>Started the rollout in May 2026 at the asset management company, then extended it to the group: 10 Team seats plus individual accounts. I own licences and access rights.</li>
+        <li>Trained 25 people through workshops, one-to-one sessions and written guides.</li>
+        <li>Set up a private organisation plugin marketplace and wrote the company playbook for sharing a Claude plugin.</li>
+        <li>Published the reporting plugin to the organisation, so its skills (a four-eyes review of investor reports, a fast review and a restyle to the house template) open in Cowork as well as Claude Code, with no terminal involved. It is a pilot with the finance controllers.</li>
+      </ul></div>
+      <div><h3>How Claude Code helped</h3><ul>
+        <li>Read the incumbent platform's usage export, researched public pricing and built the TCO workbook (12 tabs, 324 formulas) over five versions.</li>
+        <li>A research workflow established how the desktop app runs a skill locally for a Team user. A six-agent adversarial read of my setup guide then found two Windows blockers before it shipped.</li>
+        <li>Since v0.5.0, every release of the reporting plugin goes through publishability tests, a pull request, a version bump and a tag.</li>
+      </ul></div>
+    </div>
+    <figure class="wide-fig">
+      <div class="scroll">
+      <svg viewBox="0 0 920 250" role="img" aria-label="How a plugin reaches a non-technical team: through tests, a private repository marketplace and the organisation sync, or by direct install with a setup guide.">
+        <defs><marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+        <rect class="d-human" x="10" y="60" width="150" height="58" rx="3"/><text class="d-t" x="85" y="85" text-anchor="middle">Me in Claude Code</text><text class="d-s" x="85" y="102" text-anchor="middle">build and test</text>
+        <rect class="d-det" x="200" y="60" width="160" height="58" rx="3"/><text class="d-t" x="280" y="85" text-anchor="middle">Publishability tests</text><text class="d-s" x="280" y="102" text-anchor="middle">+ adversarial review</text>
+        <rect class="d-det" x="400" y="60" width="160" height="58" rx="3"/><text class="d-t" x="480" y="85" text-anchor="middle">Private repository</text><text class="d-s" x="480" y="102" text-anchor="middle">marketplace.json</text>
+        <rect class="d-det" x="600" y="60" width="140" height="58" rx="3"/><text class="d-t" x="670" y="85" text-anchor="middle">Organisation sync</text><text class="d-s" x="670" y="102" text-anchor="middle">Claude Team</text>
+        <rect class="d-out" x="780" y="60" width="130" height="58" rx="3"/><text class="d-t" x="845" y="85" text-anchor="middle">Controllers</text><text class="d-s" x="845" y="102" text-anchor="middle">plugin, in Cowork</text>
+        <line class="d-e" x1="160" y1="89" x2="198" y2="89" marker-end="url(#ar1)"/>
+        <line class="d-e" x1="360" y1="89" x2="398" y2="89" marker-end="url(#ar1)"/><text class="d-l" x="380" y="80" text-anchor="middle">PR</text>
+        <line class="d-e" x1="560" y1="89" x2="598" y2="89" marker-end="url(#ar1)"/><text class="d-l" x="580" y="80" text-anchor="middle">merge</text>
+        <line class="d-e" x1="740" y1="89" x2="778" y2="89" marker-end="url(#ar1)"/>
+        <path class="d-e dash" d="M845,60 V30 H85 V58" marker-end="url(#ar1)"/><text class="d-l" x="465" y="24" text-anchor="middle">field feedback, next version</text>
+        <rect class="d-agent" x="400" y="170" width="160" height="58" rx="3"/><text class="d-t" x="480" y="195" text-anchor="middle">Statement plugin</text><text class="d-s" x="480" y="212" text-anchor="middle">direct install</text>
+        <rect class="d-out" x="600" y="170" width="200" height="58" rx="3"/><text class="d-t" x="700" y="195" text-anchor="middle">Operations colleague</text><text class="d-s" x="700" y="212" text-anchor="middle">non-developer, Windows</text>
+        <path class="d-e" d="M85,118 V199 H398" marker-end="url(#ar1)"/><text class="d-l" x="240" y="192" text-anchor="middle">plugin folder + setup guide</text>
+        <line class="d-e" x1="560" y1="199" x2="598" y2="199" marker-end="url(#ar1)"/>
+      </svg>
+      </div>
+      <figcaption>The organisation syncs a marketplace, not a single plugin. A release reaches the controllers through the repository: auto-sync fires when a merged pull request raises the version, otherwise an admin clicks Update. The statement plugin still goes by direct install to its main user.</figcaption>
+      <div class="legend"><span><i class="agent"></i>Claude agent</span><span><i class="det"></i>deterministic code or files</span><span><i class="human"></i>human decision</span><span><i class="out"></i>output or user</span></div>
+    </figure>
+<pre><span class="c"># Synthetic layout, from my playbook for sharing a Claude plugin</span>
+acme-plugins/                        <span class="c"># private repo; the organisation syncs it</span>
+├── .claude-plugin/marketplace.json  <span class="c"># lists every plugin the teams can install</span>
+└── plugins/reporting/
+    ├── .claude-plugin/plugin.json   <span class="c"># the version lives here, and only here</span>
+    ├── skills/&lt;skill&gt;/SKILL.md      <span class="c"># description: 1,024 characters or fewer</span>
+    └── USER_GUIDE.md  CHANGELOG.md</pre>
+    <div class="limits"><span class="label">What I learned</span>
+      <p>Seats measure access, not use. Next I want usage per skill and time saved per task.</p>
+    </div>
+  </div>
+</section>
+
+<!-- METHOD -->
+<section class="case" id="method">
+  <aside class="rail">
+    <span class="stamp build">Daily practice</span>
+    <div class="meta"><span class="label">Tools</span><span>Claude Code, Cowork, the Claude API (n8n prototypes since 2024), the open-source superpowers skills, Workflow tool, MCP</span></div>
+    <div class="metrics">
+      <div><span class="v">~500</span><span class="k">logged working sessions since May 2026</span></div>
+      <div><span class="v">10/10</span><span class="k">synthetic trap funds caught by the plugin's decision rule, including a planted false negative (scripted harness)</span></div>
+      <div><span class="v">4</span><span class="k">real defects confirmed by a multi-agent code review before hand-over</span></div>
+    </div>
+  </aside>
+  <div class="main">
+    <p class="label">How I build</p>
+    <h2>Write it down, test first, let agents attack the result, keep a human on the decision</h2>
+    <p>In a regulated firm a wrong figure sent to investors is hard to take back, and a fluent answer proves nothing. I work across more than 90 workstreams, mostly alone, so my way of working has to make Claude's output checkable, resumable and safe to hand to non-technical colleagues.</p>
+    <figure class="wide-fig">
+      <div class="scroll">
+      <svg viewBox="0 0 920 210" role="img" aria-label="My build loop: context, approved spec, plan, implementation by sub-agents with tests first, reviews and adversarial checks, then my GO or NO-GO, release and journal feeding the next session.">
+        <defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+        <rect class="d-det" x="8" y="60" width="112" height="62" rx="3"/><text class="d-t" x="64" y="86" text-anchor="middle">Context</text><text class="d-s" x="64" y="103" text-anchor="middle">CLAUDE.md + log</text>
+        <rect class="d-human" x="140" y="60" width="112" height="62" rx="3"/><text class="d-t" x="196" y="86" text-anchor="middle">Spec</text><text class="d-s" x="196" y="103" text-anchor="middle">approved by me</text>
+        <rect class="d-agent" x="272" y="60" width="112" height="62" rx="3"/><text class="d-t" x="328" y="86" text-anchor="middle">Plan</text><text class="d-s" x="328" y="103" text-anchor="middle">small tasks</text>
+        <rect class="d-agent" x="404" y="60" width="112" height="62" rx="3"/><text class="d-t" x="460" y="86" text-anchor="middle">Build</text><text class="d-s" x="460" y="103" text-anchor="middle">sub-agents, TDD</text>
+        <rect class="d-agent" x="536" y="60" width="112" height="62" rx="3"/><text class="d-t" x="592" y="86" text-anchor="middle">Attack</text><text class="d-s" x="592" y="103" text-anchor="middle">review, refute</text>
+        <rect class="d-human" x="668" y="60" width="112" height="62" rx="3"/><text class="d-t" x="724" y="86" text-anchor="middle">Decide</text><text class="d-s" x="724" y="103" text-anchor="middle">GO or NO-GO</text>
+        <rect class="d-out" x="800" y="60" width="112" height="62" rx="3"/><text class="d-t" x="856" y="86" text-anchor="middle">Release</text><text class="d-s" x="856" y="103" text-anchor="middle">log, handoff</text>
+        <line class="d-e" x1="120" y1="91" x2="138" y2="91" marker-end="url(#ar2)"/><line class="d-e" x1="252" y1="91" x2="270" y2="91" marker-end="url(#ar2)"/><line class="d-e" x1="384" y1="91" x2="402" y2="91" marker-end="url(#ar2)"/><line class="d-e" x1="516" y1="91" x2="534" y2="91" marker-end="url(#ar2)"/><line class="d-e" x1="648" y1="91" x2="666" y2="91" marker-end="url(#ar2)"/><line class="d-e" x1="780" y1="91" x2="798" y2="91" marker-end="url(#ar2)"/>
+        <path class="d-e dash" d="M724,60 V32 H460 V58" marker-end="url(#ar2)"/><text class="d-l" x="592" y="26" text-anchor="middle">NO-GO: fix and re-run</text>
+        <path class="d-e dash" d="M856,122 V172 H64 V124" marker-end="url(#ar2)"/><text class="d-l" x="460" y="188" text-anchor="middle">the next session starts from the journal</text>
+      </svg>
+      </div>
+      <figcaption>I sit at two points: approving the spec and deciding what survives the adversarial checks. Agents, tests and journals do the rest.</figcaption>
+      <div class="legend"><span><i class="agent"></i>Claude agent</span><span><i class="det"></i>deterministic code or files</span><span><i class="human"></i>human decision</span><span><i class="out"></i>output or user</span></div>
+    </figure>
+    <div class="two">
+      <div><h3>Five rules I work by</h3><ul>
+        <li><strong>Every session leaves a trail.</strong> One folder per workstream, a dated journal per session, a CLAUDE.md for rules that outlive the session.</li>
+        <li><strong>A green test suite is a claim until an adversarial review has tried to break it.</strong> A five-agent review once caught a query that passed with one fund and returned nothing with two.</li>
+        <li><strong>Keep the second pass blind.</strong> Pass B works in a fresh context and rewrites its logic without seeing pass A.</li>
+        <li><strong>Make failure the safe default.</strong> When a match is doubtful, the tool falls towards NO-GO.</li>
+        <li><strong>No source, no value.</strong> A fact without a located reference gets confidence 1 out of 5. Numbers are computed in deterministic code.</li>
+      </ul></div>
+      <div><h3>The tooling</h3><ul>
+        <li>The open-source superpowers skills for larger builds: brainstorming, written plans, subagent-driven and test-driven development.</li>
+        <li>The Workflow tool for fan-out work, with schema-bound outputs and <span class="mono">resumeFromRunId</span> when a limit cuts a run short.</li>
+        <li><span class="mono">/code-review</span> at xhigh effort before a hand-over: detection angles in parallel, then a verifier on every candidate finding.</li>
+        <li>MCP to build and to verify: the app database, Notion, Google Drive, Gmail and Slack.</li>
+      </ul></div>
+    </div>
+    <div class="limits"><span class="label">What I learned</span>
+      <p>Independence is a discipline. Twice during the manual campaign, before the plugin existed, the second pass shared a session it should not have; the journals record both.</p>
+      <p>Sub-agent reports are claims until I run their code. On the reporting plugin, running the chain exposed four defects the agents had not reported.</p>
+    </div>
+  </div>
+</section>
+
+<!-- APP -->
+<section class="case" id="app">
+  <aside class="rail">
+    <span class="stamp production">Production</span>
+    <div class="meta"><span class="label">Built</span><span>20 May – 18 June 2026</span></div>
+    <div class="meta"><span class="label">Stack</span><span>Next.js 15, PostgreSQL, Vercel</span></div>
+    <div class="metrics">
+      <div><span class="v">4 weeks</span><span class="k">from a draft spreadsheet to production</span></div>
+      <div><span class="v">37</span><span class="k">funds tracked; 15 authorised users in four roles</span></div>
+      <div><span class="v">204</span><span class="k">automated tests, run in CI on every push</span></div>
+      <div><span class="v">1,542</span><span class="k">step updates logged, June to mid-September 2026</span></div>
+    </div>
+  </aside>
+  <div class="main">
+    <p class="label">Case 2</p>
+    <h2>The period-end workflow app</h2>
+    <p class="lede">I designed and built it alone with Claude Code. In four weeks the firm's period-end tracking went from a spreadsheet to a secured production app the whole team works in: it ran the June 2026 period-end and logged 1,542 step updates by mid-September.</p>
+    <p>At each reporting date (30 June, 31 December), every fund's NAV (net asset value) and a set of recurring deliverables must be produced: 45 steps in five phases, with external fund accountants and four-eyes reviews. When I arrived this lived in spreadsheets, with no management view and no link between dependent steps.</p>
+    <div class="cols">
+      <div><h3>What I built</h3><ul>
+        <li>Three versions in four weeks: a normalised Google Sheets base, an Apps Script app that stayed in test, then a rebuild on Next.js and PostgreSQL, live on 18 June.</li>
+        <li>A pure TypeScript domain core: fund health (red, amber, green), hard and soft dependencies between steps, absence cover.</li>
+        <li>Security by default: row-level security on every table for reads, writes only through a tested server layer, Google SSO with MFA and an allowlist, and an append-only audit log written in the same transaction as each update.</li>
+        <li>Role-based views for management, controllers and the transfer-agency team that keeps the investor register.</li>
+      </ul></div>
+      <div><h3>How Claude Code helped</h3><ul>
+        <li>Brainstorm, spec, plan, then one implementer sub-agent per task with a spec reviewer and a quality reviewer behind it. TDD on the core.</li>
+        <li>Adversarial reviews at every milestone; on the new backend, a five-agent review caught the bug shown below.</li>
+        <li>The Supabase MCP server in session to apply migrations and confirm row-level security, with my go-ahead on every production write.</li>
+        <li>Systematic debugging on exported platform logs when production broke.</li>
+      </ul></div>
+    </div>
+    <figure class="wide-fig">
+      <div class="scroll">
+      <svg viewBox="0 0 920 290" role="img" aria-label="Architecture of the workflow app: users sign in through SSO and MFA, the Next.js app calls APIs that apply a pure domain core and write to PostgreSQL under row-level security, with an append-only audit log. Claude Code works only in the build loop.">
+        <defs><marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+        <rect class="d-out" x="10" y="30" width="150" height="62" rx="3"/><text class="d-t" x="85" y="56" text-anchor="middle">15 users</text><text class="d-s" x="85" y="73" text-anchor="middle">four roles, three views</text>
+        <rect class="d-det" x="195" y="30" width="150" height="62" rx="3"/><text class="d-t" x="270" y="56" text-anchor="middle">SSO + MFA</text><text class="d-s" x="270" y="73" text-anchor="middle">allowlist</text>
+        <rect class="d-det" x="380" y="30" width="150" height="62" rx="3"/><text class="d-t" x="455" y="56" text-anchor="middle">Next.js app</text><text class="d-s" x="455" y="73" text-anchor="middle">Vercel</text>
+        <rect class="d-det" x="565" y="30" width="150" height="62" rx="3"/><text class="d-t" x="640" y="56" text-anchor="middle">App + admin APIs</text><text class="d-s" x="640" y="73" text-anchor="middle">OpenAPI</text>
+        <rect class="d-det" x="750" y="30" width="160" height="62" rx="3"/><text class="d-t" x="830" y="56" text-anchor="middle">Domain core</text><text class="d-s" x="830" y="73" text-anchor="middle">pure TypeScript</text>
+        <line class="d-e" x1="160" y1="61" x2="193" y2="61" marker-end="url(#ar3)"/><line class="d-e" x1="345" y1="61" x2="378" y2="61" marker-end="url(#ar3)"/><line class="d-e" x1="530" y1="61" x2="563" y2="61" marker-end="url(#ar3)"/><line class="d-e" x1="715" y1="61" x2="748" y2="61" marker-end="url(#ar3)"/>
+        <rect class="d-box" x="565" y="170" width="150" height="62" rx="3"/><text class="d-t" x="640" y="196" text-anchor="middle">PostgreSQL</text><text class="d-s" x="640" y="213" text-anchor="middle">RLS on every table</text>
+        <rect class="d-box" x="750" y="170" width="160" height="62" rx="3"/><text class="d-t" x="830" y="196" text-anchor="middle">Audit log</text><text class="d-s" x="830" y="213" text-anchor="middle">append-only</text>
+        <line class="d-e" x1="640" y1="92" x2="640" y2="168" marker-end="url(#ar3)"/><text class="d-l" x="632" y="140" text-anchor="end">reads, writes</text>
+        <path class="d-e" d="M690,92 V130 H830 V168" marker-end="url(#ar3)"/><text class="d-l" x="760" y="124" text-anchor="middle">same transaction</text>
+        <rect class="d-agent" x="10" y="170" width="200" height="62" rx="3"/><text class="d-t" x="110" y="196" text-anchor="middle">Claude Code</text><text class="d-s" x="110" y="213" text-anchor="middle">build time only</text>
+        <rect class="d-det" x="270" y="170" width="175" height="62" rx="3"/><text class="d-t" x="357" y="196" text-anchor="middle">CI on every push</text><text class="d-s" x="357" y="213" text-anchor="middle">lint, types, 204 tests</text>
+        <line class="d-e" x1="210" y1="201" x2="268" y2="201" marker-end="url(#ar3)"/><text class="d-l" x="239" y="192" text-anchor="middle">commits</text>
+        
+        <path class="d-e dash" d="M110,232 V272 H640 V234" marker-end="url(#ar3)"/><text class="d-l" x="375" y="266" text-anchor="middle">migrations via MCP, with my go-ahead</text>
+      </svg>
+      </div>
+      <figcaption>No model runs in production. Claude Code sits in the build loop; every step update is written to the audit log in the same transaction.</figcaption>
+      <div class="legend"><span><i class="agent"></i>Claude agent</span><span><i class="det"></i>deterministic code or files</span><span><i class="human"></i>human decision</span><span><i class="out"></i>output or user</span></div>
+    </figure>
+    <p class="label">The bug the adversarial review caught <span class="synthetic">· synthetic, simplified</span></p>
+<pre><span class="c">// Before: the only integration test seeded one fund, so this passed.</span>
+<span class="c">// With two funds or more the WHERE clause becomes `id = a AND id = b`: always empty.</span>
+<span class="k">const</span> rows = <span class="k">await</span> db.select().from(funds)
+  .where(and(...fundIds.map((id) =&gt; eq(funds.id, id))));
+
+<span class="c">// After</span>
+<span class="k">if</span> (fundIds.length === 0) <span class="k">return</span> [];
+<span class="k">const</span> rows = <span class="k">await</span> db.select().from(funds)
+  .where(inArray(funds.id, fundIds));</pre>
+    <div class="limits"><span class="label">What I learned</span>
+      <p>Claude Code flagged the load risk of a 15-second auto-refresh when it delivered it. I shipped it without a smoke test, and it saturated the database on a peak day of the June period-end. I fixed it the same day; now a flagged load risk gets tested before any reporting date.</p>
+      <p>The audit log shows activity, not hours saved. I have not measured time saved yet.</p>
+    </div>
+  </div>
+</section>
+
+<!-- QC -->
+<section class="case" id="qc">
+  <aside class="rail">
+    <span class="stamp production">In use</span>
+    <div class="meta"><span class="label">Period</span><span>May 2026 to today</span></div>
+    <div class="meta"><span class="label">Covers</span><span>Capital account statements and investor reports</span></div>
+    <div class="metrics">
+      <div><span class="v">20+</span><span class="k">funds checked before sending</span></div>
+      <div><span class="v">219</span><span class="k">statements run by a non-technical colleague alone: 4,284 checks, full coverage, and a NO-GO on a missing input, as designed</span></div>
+      <div><span class="v">189/189</span><span class="k">values on a real fund where text parsing and vision agreed within one cent</span></div>
+      <div><span class="v">15/15</span><span class="k">corrections applied from a prescriptive fix sheet (page, what it says, what it should say, why)</span></div>
+    </div>
+  </aside>
+  <div class="main">
+    <p class="label">Case 3</p>
+    <h2>Agentic quality control before anything reaches an investor</h2>
+    <p class="lede">Two isolated passes read every document, a third arbitrates, and a confirmed error that only one pass caught still blocks the send.</p>
+    <p>A capital account statement shows one investor their commitment, paid-in capital, distributions and current value. Before it goes out, every figure must agree with the investor database, the NAV calculation, the auditor's certificate and the unit register. The goal: every figure on every statement checked, with a record of each check. The two failures that matter most are a wrong number and an investor who receives someone else's statement.</p>
+    <figure class="wide-fig">
+      <div class="scroll">
+      <svg viewBox="0 0 920 320" role="img" aria-label="Pass A, deterministic, and pass B, a vision sub-agent blind to A, both read every document. A coverage gate proves one-to-one coverage, pass C arbitrates, and a confirmed one-pass miss blocks the send. A human sends, or corrects and re-runs.">
+        <defs><marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+        <rect class="d-box" x="10" y="120" width="160" height="70" rx="3"/><text class="d-t" x="90" y="148" text-anchor="middle">Batch to check</text><text class="d-s" x="90" y="165" text-anchor="middle">PDFs + source data</text>
+        <rect class="d-det" x="215" y="40" width="185" height="62" rx="3"/><text class="d-t" x="307" y="66" text-anchor="middle">Pass A</text><text class="d-s" x="307" y="83" text-anchor="middle">Python comparators</text>
+        <rect class="d-agent" x="215" y="208" width="185" height="62" rx="3"/><text class="d-t" x="307" y="234" text-anchor="middle">Pass B</text><text class="d-s" x="307" y="251" text-anchor="middle">vision sub-agent, blind to A</text>
+        <rect class="d-det" x="445" y="120" width="150" height="70" rx="3"/><text class="d-t" x="520" y="148" text-anchor="middle">Coverage gate</text><text class="d-s" x="520" y="165" text-anchor="middle">per-PDF logs 1:1</text>
+        <rect class="d-agent" x="635" y="120" width="130" height="70" rx="3"/><text class="d-t" x="700" y="148" text-anchor="middle">Pass C</text><text class="d-s" x="700" y="165" text-anchor="middle">arbiter</text>
+        <rect class="d-out" x="800" y="120" width="110" height="70" rx="3"/><text class="d-t" x="855" y="148" text-anchor="middle">GO / NO-GO</text><text class="d-s" x="855" y="165" text-anchor="middle">SHA-256 stamped</text>
+        <path class="d-e" d="M170,140 H190 V71 H213" marker-end="url(#ar4)"/><text class="d-l" x="186" y="62" text-anchor="end">100% of docs</text>
+        <path class="d-e" d="M170,170 H190 V239 H213" marker-end="url(#ar4)"/><text class="d-l" x="196" y="290">100%, no access to A</text>
+        <path class="d-e" d="M400,71 H420 V140 H443" marker-end="url(#ar4)"/>
+        <path class="d-e" d="M400,239 H420 V170 H443" marker-end="url(#ar4)"/><text class="d-l" x="426" y="210">findings + logs</text>
+        <line class="d-e" x1="595" y1="155" x2="633" y2="155" marker-end="url(#ar4)"/>
+        <line class="d-e" x1="765" y1="155" x2="798" y2="155" marker-end="url(#ar4)"/>
+        <path class="d-e dash" d="M520,120 V24 H855 V118" marker-end="url(#ar4)"/><text class="d-l" x="688" y="18" text-anchor="middle">coverage below 100%: NO-GO</text>
+        <text class="d-l" x="700" y="110" text-anchor="middle">one-pass miss = blocking</text>
+        <rect class="d-human" x="635" y="238" width="275" height="54" rx="3"/><text class="d-t" x="772" y="262" text-anchor="middle">Human: send, or fix and re-run</text><text class="d-s" x="772" y="279" text-anchor="middle">gets what C cannot settle</text>
+        <line class="d-e" x1="855" y1="190" x2="855" y2="236" marker-end="url(#ar4)"/>
+        <line class="d-e" x1="700" y1="190" x2="700" y2="236" marker-end="url(#ar4)"/>
+      </svg>
+      </div>
+      <figcaption>A and B never see each other's work. C sees both. Anything seen by only one pass and confirmed on re-check counts as a miss by the other pass and blocks the send. Flow only, no real data.</figcaption>
+      <div class="legend"><span><i class="agent"></i>Claude agent</span><span><i class="det"></i>deterministic code or files</span><span><i class="human"></i>human decision</span><span><i class="out"></i>output or user</span></div>
+    </figure>
+    <div class="cols">
+      <div><h3>What I built</h3><ul>
+        <li>A review skill with three isolated passes: ten Python comparator modules (A), a vision sub-agent that writes its own checking code (B), and an arbiter (C).</li>
+        <li>Guardrails in the skill itself: no sampling, coverage proven one-to-one, isolation checked before C starts, STOP conditions such as a statement naming a different investor from its file.</li>
+        <li>Packaged as a Claude Code plugin with 300 tests and a setup guide for a Windows laptop.</li>
+        <li>The same pattern for investor reports: 137 controls and prescriptive fix sheets (page, what it says, what it should say, why).</li>
+      </ul></div>
+      <div><h3>How Claude Code helped</h3><ul>
+        <li>Five agents attacked the spec before any code: 50 findings, 11 blocking. One fix made the miss rule symmetric.</li>
+        <li>A <span class="mono">/code-review</span> confirmed four real bugs, one of which could have issued a false GO.</li>
+        <li>Evals ship as code: 10 fictitious funds with one trap each test the decision rule against pass A and a scripted stand-in for pass B, including a planted false negative that must end in NO-GO. The model's own reading is checked on a real fund instead: 189/189 values agreed within one cent.</li>
+        <li>Field feedback loop: two fixes shipped the day the first colleague reported problems, a parallel version the next day.</li>
+      </ul></div>
+    </div>
+    <p class="quote">GO if and only if every check has zero blocking issue after arbitration by C, and every A/B divergence is resolved. Anything detected by only one of the two passes and confirmed on re-check is a false negative of the other pass. It is blocking, whichever pass saw it.<br><span class="label">The decision rule, as the skill states it (translated)</span></p>
+    <div class="limits"><span class="label">What I learned</span>
+      <p>A and B run on the same base model, so they can share a blind spot. They differ in how they read: parsing code for A, vision for B. My eval shows the residual risk: if B also misses the planted error, the verdict is GO.</p>
+      <p>The report engine read text well and tables badly, and failed silently. My fix in progress: have the model extract the data twice, independently, into a fixed schema, and keep every comparison in code.</p>
+    </div>
+  </div>
+</section>
+
+<!-- AGREEMENTS -->
+<section class="case" id="agreements">
+  <aside class="rail">
+    <span class="stamp production">In use</span>
+    <div class="meta"><span class="label">Built</span><span>May–June 2026</span></div>
+    <div class="meta"><span class="label">Feeds</span><span>The firm's most-used AI agent (on its existing platform) and the statement plugin</span></div>
+    <div class="metrics">
+      <div><span class="v">45</span><span class="k">fund agreements read cover to cover</span></div>
+      <div><span class="v">2,155</span><span class="k">facts, each with its reference or an explicit “not located”</span></div>
+      <div><span class="v">96%</span><span class="k">of facts pinned to a page number at the first count</span></div>
+      <div><span class="v">532</span><span class="k">pitfalls flagged: clauses that can catch operations out</span></div>
+    </div>
+  </aside>
+  <div class="main">
+    <p class="label">Case 4</p>
+    <h2>Making 45 fund agreements agent-ready</h2>
+    <p class="lede">A Claude Code pipeline read every page of 45 fund agreements and turned them into facts an agent can count, search and quote.</p>
+    <p>Each fund has an agreement of 80 to 120 pages (an LPA, or fund rules for French funds) that sets fees, redemption rules and investor rights. There was no single record of what they say, and every question on a redemption or a transfer meant rereading a PDF.</p>
+    <figure class="wide-fig">
+      <div class="scroll">
+      <svg viewBox="0 0 920 250" role="img" aria-label="Extraction agents read each agreement, sceptical agents check them against the source, a completeness check re-runs agents that stopped early, and a Python build produces SQL tables and fund sheets. A knowledge agent routes counting questions to SQL and open questions to semantic search.">
+        <defs><marker id="ar5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+        <rect class="d-box" x="8" y="60" width="130" height="62" rx="3"/><text class="d-t" x="73" y="86" text-anchor="middle">45 agreements</text><text class="d-s" x="73" y="103" text-anchor="middle">PDF, 80–120 pages</text>
+        <rect class="d-agent" x="163" y="60" width="140" height="62" rx="3"/><text class="d-t" x="233" y="86" text-anchor="middle">Extract</text><text class="d-s" x="233" y="103" text-anchor="middle">1 agent per fund</text>
+        <rect class="d-agent" x="328" y="60" width="140" height="62" rx="3"/><text class="d-t" x="398" y="86" text-anchor="middle">Challenge</text><text class="d-s" x="398" y="103" text-anchor="middle">sceptic vs source</text>
+        <rect class="d-det" x="493" y="60" width="140" height="62" rx="3"/><text class="d-t" x="563" y="86" text-anchor="middle">Completeness</text><text class="d-s" x="563" y="103" text-anchor="middle">rows per fund</text>
+        <rect class="d-det" x="658" y="60" width="110" height="62" rx="3"/><text class="d-t" x="713" y="86" text-anchor="middle">Build</text><text class="d-s" x="713" y="103" text-anchor="middle">Python</text>
+        <rect class="d-box" x="793" y="60" width="119" height="62" rx="3"/><text class="d-t" x="852" y="86" text-anchor="middle">Base</text><text class="d-s" x="852" y="103" text-anchor="middle">SQL + 45 sheets</text>
+        <line class="d-e" x1="138" y1="91" x2="161" y2="91" marker-end="url(#ar5)"/><line class="d-e" x1="303" y1="91" x2="326" y2="91" marker-end="url(#ar5)"/><line class="d-e" x1="468" y1="91" x2="491" y2="91" marker-end="url(#ar5)"/><line class="d-e" x1="633" y1="91" x2="656" y2="91" marker-end="url(#ar5)"/><line class="d-e" x1="768" y1="91" x2="791" y2="91" marker-end="url(#ar5)"/>
+        <path class="d-e dash" d="M563,60 V30 H233 V58" marker-end="url(#ar5)"/><text class="d-l" x="398" y="24" text-anchor="middle">re-run agents that stopped early</text>
+        <rect class="d-box" x="560" y="175" width="210" height="62" rx="3"/><text class="d-t" x="665" y="201" text-anchor="middle">Knowledge agent</text><text class="d-s" x="665" y="218" text-anchor="middle">existing platform · SQL or search</text>
+        <rect class="d-out" x="330" y="175" width="190" height="62" rx="3"/><text class="d-t" x="425" y="201" text-anchor="middle">Answer</text><text class="d-s" x="425" y="218" text-anchor="middle">citation + confidence</text>
+        <rect class="d-out" x="795" y="175" width="117" height="62" rx="3"/><text class="d-t" x="853" y="201" text-anchor="middle">Plugin</text><text class="d-s" x="853" y="218" text-anchor="middle">fund type</text>
+        <path class="d-e" d="M830,122 V150 H665 V173" marker-end="url(#ar5)"/>
+        <line class="d-e" x1="870" y1="122" x2="870" y2="173" marker-end="url(#ar5)"/>
+        <line class="d-e" x1="560" y1="206" x2="522" y2="206" marker-end="url(#ar5)"/>
+      </svg>
+      </div>
+      <figcaption>Agents read and check. Deterministic code builds the base. The knowledge agent sends counting questions to SQL and open questions to semantic search over one sheet per fund, so citations never bleed across funds.</figcaption>
+      <div class="legend"><span><i class="agent"></i>Claude agent</span><span><i class="det"></i>deterministic code or files</span><span><i class="human"></i>human decision</span><span><i class="out"></i>output or user</span></div>
+    </figure>
+    <div class="cols">
+      <div><h3>What I built</h3><ul>
+        <li>One extraction agent per fund reading 20-page slices on nine dimensions, from tax-eligibility ratios to redemption terms, each fact with article, page, verbatim quote and confidence.</li>
+        <li>A sceptical checker per fund against the source. In the first run it corrected two funds.</li>
+        <li>A rule against invented citations: a reference the agent cannot find reads “reference not located”, confidence 1.</li>
+        <li>A hybrid knowledge agent with five playbooks, deployed on the firm's existing agent platform and now its most-used AI agent; Claude Code built the base it reads. A 724-line runbook lets a fresh session add a fund.</li>
+      </ul></div>
+      <div><h3>How Claude Code helped</h3><ul>
+        <li>Workflow scripts with one schema-typed agent per fund.</li>
+        <li>A five-agent research workflow settled the agent design first: counting goes to SQL, because semantic search ranks by relevance and misses items.</li>
+        <li>A per-fund completeness check found four agents that had stopped early; a four-agent run completed them.</li>
+        <li>I paused a 76-agent pass with 60 done and resumed it from cache, adding two funds received in between.</li>
+      </ul></div>
+    </div>
+    <p class="label">One extracted fact <span class="synthetic">· synthetic example, real format</span></p>
+    <dl class="cite">
+      <dt>Fund</dt><dd>Fund X (synthetic)</dd>
+      <dt>Attribute</dt><dd>Redemption gate</dd>
+      <dt>Value</dt><dd>Redemptions capped at 5% of net assets per valuation date; the excess is reduced pro rata and carried forward</dd>
+      <dt>Reference</dt><dd>Article 10.3, page 34</dd>
+      <dt>Verbatim</dt><dd>“Where redemption requests for a Valuation Date exceed 5% of the Fund's net assets, the Management Company may reduce them pro rata and carry the balance forward.”</dd>
+      <dt>Confidence</dt><dd>5 / 5</dd>
+    </dl>
+    <div class="limits"><span class="label">What I learned</span>
+      <p>44% of unit and NAV rounding rules came back “not located”: the agreements are often silent on them. The agent says so instead of guessing, and the question goes to the people who apply the rule.</p>
+      <p>The base dates from June 2026, and new document versions and new funds mean part of it needs a refresh. The freshness loop I designed in June is my next build.</p>
+    </div>
+  </div>
+</section>
+
+<!-- KPI -->
+<section class="case" id="kpi">
+  <aside class="rail">
+    <span class="stamp production">Production</span>
+    <div class="meta"><span class="label">Stack</span><span>BigQuery views, Looker Studio</span></div>
+    <div class="meta"><span class="label">Teams</span><span>Onboarding and investor relations, transfer agency, financial control, investment, compliance, management</span></div>
+    <div class="metrics">
+      <div><span class="v">0% → ~70%</span><span class="k">recurring deliverables on time, 31 Dec 2025 to 30 Jun 2026</span></div>
+      <div><span class="v">95%+</span><span class="k">target for the 31 Dec 2026 reporting date</span></div>
+    </div>
+  </aside>
+  <div class="main">
+    <p class="label">Case 5</p>
+    <h2>Owning the numbers: KPIs in version-controlled SQL</h2>
+    <p class="lede">Every KPI is defined once, as a BigQuery view under version control, and each team reads its own Looker Studio dashboard. I write the SQL with Claude Code.</p>
+    <p>Each reporting date triggers a set of recurring deliverables, and their deadlines lived in workbooks. I wanted one set of numbers that every team reads the same way: on-time delivery, anomalies with their resolution time and recurrence, and incidents, categorised, with remediation plans generated automatically.</p>
+    <figure class="chart-wrap">
+      <p class="label">On-time delivery of recurring period-end deliverables, all teams</p>
+      <svg viewBox="0 0 540 250" role="img" aria-label="On-time delivery: 0% at the 31 December 2025 reporting date, about 70% at 30 June 2026, target 95% or more at 31 December 2026.">
+        <line class="chart-grid" x1="70" y1="20" x2="520" y2="20"/><line class="chart-grid" x1="70" y1="65" x2="520" y2="65"/><line class="chart-grid" x1="70" y1="110" x2="520" y2="110"/><line class="chart-grid" x1="70" y1="155" x2="520" y2="155"/>
+        <line class="chart-base" x1="70" y1="200" x2="520" y2="200"/>
+        <text class="chart-s" x="60" y="24" text-anchor="end">100%</text><text class="chart-s" x="60" y="69" text-anchor="end">75%</text><text class="chart-s" x="60" y="114" text-anchor="end">50%</text><text class="chart-s" x="60" y="159" text-anchor="end">25%</text><text class="chart-s" x="60" y="204" text-anchor="end">0%</text>
+        <g><title>31 Dec 2025: 0% on time</title><rect x="125" y="160" width="100" height="40" fill="transparent"/><line x1="140" y1="199" x2="210" y2="199" stroke="var(--chart)" stroke-width="3"/><text class="chart-t" x="175" y="188" text-anchor="middle">0%</text></g>
+        <g><title>30 Jun 2026: about 70% on time</title><path class="chart-bar" d="M260,200 V78 Q260,74 264,74 H326 Q330,74 330,78 V200 Z"/><text class="chart-t" x="295" y="64" text-anchor="middle">~70%</text></g>
+        <g><title>31 Dec 2026: target 95% or more</title><rect class="chart-target" x="390" y="29" width="70" height="171"/><text class="chart-t" x="425" y="19" text-anchor="middle">95%+ target</text></g>
+        <text class="chart-s" x="175" y="222" text-anchor="middle">31 Dec 2025</text><text class="chart-s" x="295" y="222" text-anchor="middle">30 Jun 2026</text><text class="chart-s" x="425" y="222" text-anchor="middle">31 Dec 2026</text>
+        <text class="chart-s" x="425" y="238" text-anchor="middle">(target)</text>
+      </svg>
+      <figcaption>On time means delivered by the deadline set for each deliverable. Two measured reporting dates and the year-end target. The December 2025 baseline comes from the workbooks used before the workflow app; June 2026 comes from the app. The gain came from work with every team: the dashboards measure it.</figcaption>
+      <details class="data"><summary>Data</summary><table><thead><tr><th>Reporting date</th><th>On time</th><th>Kind</th></tr></thead><tbody><tr><td>31 Dec 2025</td><td>0%</td><td>measured</td></tr><tr><td>30 Jun 2026</td><td>~70%</td><td>measured</td></tr><tr><td>31 Dec 2026</td><td>95%+</td><td>target</td></tr></tbody></table></details>
+    </figure>
+    <p class="label">One KPI view <span class="synthetic">· synthetic: dataset, tables and columns are fictional</span></p>
+<pre><span class="k">CREATE OR REPLACE VIEW</span> `demo_ops.kpi_team_by_reporting_date` <span class="k">AS</span>
+<span class="k">WITH</span> delivery <span class="k">AS</span> (
+  <span class="k">SELECT</span> team, reporting_date,
+    COUNT(*) <span class="k">AS</span> items_due,
+    <span class="c">-- an undelivered item compares as NULL, so it counts as late</span>
+    COUNTIF(delivered_on &lt;= due_on) <span class="k">AS</span> items_on_time
+  <span class="k">FROM</span> `demo_ops.deliverables`
+  <span class="k">WHERE</span> is_recurring <span class="k">AND</span> is_applicable <span class="k">AND</span> due_on &lt;= CURRENT_DATE()
+  <span class="k">GROUP BY</span> team, reporting_date
+),
+resolution <span class="k">AS</span> (
+  <span class="k">SELECT</span> team, reporting_date,
+    COUNT(*) <span class="k">AS</span> anomalies_logged,
+    COUNTIF(resolved_on <span class="k">IS NULL</span>) <span class="k">AS</span> anomalies_open,
+    <span class="c">-- approximate median days to resolve; open anomalies give NULL and are ignored</span>
+    APPROX_QUANTILES(DATE_DIFF(resolved_on, opened_on, DAY), 2)[SAFE_OFFSET(1)] <span class="k">AS</span> median_days_to_resolve
+  <span class="k">FROM</span> `demo_ops.anomalies`
+  <span class="k">GROUP BY</span> team, reporting_date
+)
+<span class="k">SELECT</span> team, reporting_date, items_due, items_on_time,
+  ROUND(SAFE_DIVIDE(items_on_time, items_due), 3) <span class="k">AS</span> on_time_rate,
+  anomalies_logged, anomalies_open, median_days_to_resolve
+<span class="k">FROM</span> delivery <span class="k">LEFT JOIN</span> resolution <span class="k">USING</span> (team, reporting_date);</pre>
+    <div class="cols">
+      <div><h3>SQL in production</h3><ul>
+        <li>Under the workflow app: PostgreSQL with row-level security that fails closed and an audit log made append-only by triggers.</li>
+        <li>Production support in SQL, such as 30 backup assignments added for the August holidays with additive inserts, so no existing assignment changed.</li>
+      </ul></div>
+      <div><h3>How Claude Code helped</h3><ul>
+        <li>Writes and edits the KPI views and the app's row-level security policies from my definitions.</li>
+        <li>Works on the app database through the Supabase MCP server: migrations, diagnostic queries, advisors, and nothing written to production without my approval.</li>
+      </ul></div>
+    </div>
+    <div class="limits"><span class="label">What I learned</span>
+      <p>About 70% on time still means three deliverables in ten were late. The dashboards measure the gain; the teams made it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- MANDATE -->
+<section class="case" id="mandate">
+  <aside class="rail">
+    <span class="stamp production">Won</span>
+    <div class="meta"><span class="label">Status</span><span>Formal committee sign-off pending</span></div>
+    <div class="metrics">
+      <div><span class="v">150</span><span class="k">underlying funds in the automated reporting process I designed</span></div>
+    </div>
+  </aside>
+  <div class="main">
+    <p class="label">Case 6</p>
+    <h2>Winning an institutional mandate with a Claude-built prototype</h2>
+    <p class="lede">I led our response to an institutional investor's tender end to end. By the client's own account, the reporting design and the portal prototype I built with Claude Code made the difference; the mandate now awaits the client's formal approval.</p>
+    <ul>
+      <li>Designed the full automated reporting process across the mandate's 150 underlying funds, including the treatment the investor needs for Solvency II, the European insurance capital regime.</li>
+      <li>Built with Claude Code the reporting mock-up the client saw, with downloadable sample deliverables. For the secure portal behind it, I drafted a starter kit in Cowork first (a 13-section CLAUDE.md, a design-system file, a runbook and sequenced session prompts); Claude Code then executed three of its four plans.</li>
+      <li>Coordinated structuring, legal and regulatory review and due diligence across the teams involved.</li>
+    </ul>
+    <p class="note">No amounts or names: the mandate is confidential until it is signed. The portal remains a prototype and is not deployed.</p>
+  </div>
+</section>
+
+<!-- PARTNERS -->
+<section class="case" id="partners">
+  <aside class="rail">
+    <span class="stamp production">In use</span>
+    <div class="meta"><span class="label">Period</span><span>August–September 2026</span></div>
+    <div class="metrics">
+      <div><span class="v">19</span><span class="k">advisory firms that distribute our funds</span></div>
+      <div><span class="v">0</span><span class="k">invented quotes among 324 commitments checked for the first seven firms</span></div>
+    </div>
+  </aside>
+  <div class="main">
+    <p class="label">Case 7</p>
+    <h2>Preparing 19 partner reviews on evidence</h2>
+    <p>I set up a review programme with the 19 advisory firms that distribute our funds: an evidence brief per firm, drawn from email archives by a Claude Code pipeline, a commitment register, a shared service baseline and reporting to leadership. For the first seven firms, 324 commitments were extracted and each quote was re-found in the source by an adversarial checker: 190 confirmed, 131 reworded, 3 unsupported, none invented.</p>
+    <p class="note">Reviews are run as a team; the effect on the relationships is not measured yet.</p>
+  </div>
+</section>
+
+<!-- NOTES -->
+<section class="wide" id="notes">
+  <p class="label">Field notes</p>
+  <h2>Product feedback from the field: six things that broke or surprised me</h2>
+  <p class="lede">I log what breaks and how I work around it. These come from dated session logs between May and September 2026, in one Team organisation. Where the fault was mine, I say so. I have not reproduced most of these in isolation, and behaviour may have changed since.</p>
+  <div class="notes">
+    <article><h3>1. A manual upload silently shadowed the organisation's plugin</h3><dl>
+      <dt>What happened</dt><dd>The organisation syncs a marketplace, so even one plugin needs one around it. Auto-sync fired when a merged pull request raised the version; a direct push waited for an admin to click Update. Meanwhile my own machine was still running a manual upload from 1 September, and three days of fixes never reached it.</dd>
+      <dt>Workaround</dt><dd>One private repository lists every plugin; each release of the reporting plugin goes through a pull request, a version bump and a tag; a release counts as delivered once I have seen it load on a member's machine.</dd>
+      <dt>Suggestion</dt><dd>A publisher view of which version each member runs and where it came from, and a warning when a manual upload shadows an organisation plugin.</dd></dl></article>
+    <article><h3>2. A skill description over 1,024 characters dropped the skill silently</h3><dl>
+      <dt>What happened</dt><dd>To stop two sibling skills competing for the same requests, I made their descriptions mutually exclusive. One grew to 1,112 characters, and the sync published the plugin without that skill. The only trace was a console warning, and 748 green tests missed it.</dd>
+      <dt>Workaround</dt><dd>Cut the description to 727 characters with every trigger kept; tests now check description length, frontmatter and the bundle hash, on a fresh clone before merge.</dd>
+      <dt>Suggestion</dt><dd>Fail the sync, or block the merge with a check, when a skill breaks a publication rule; and routing checks across all the skills an organisation publishes: trigger evals test one description at a time, while my collision was between two sibling skills.</dd></dl></article>
+    <article><h3>3. The Gmail connector rewrites HTML drafts</h3><dl>
+      <dt>What happened</dt><dd>Read back raw, my drafts had lost every image, links were rewritten to redirect URLs and the <span class="mono">background</span> property was stripped. An update returned a new message ID and a new thread, and the old IDs returned “not found”. Part of the rewriting may be Gmail's own sanitisation.</dd>
+      <dt>Workaround</dt><dd>The connector now writes the draft's structure; the final HTML goes to the clipboard for the user to paste, after a blocking pre-check on images, links and backgrounds.</dd>
+      <dt>Suggestion</dt><dd>Document the sanitisation rules, list what was stripped in the tool response, and say in the response which IDs changed.</dd></dl></article>
+    <article><h3>4. The Notion connector under six parallel sub-agents</h3><dl>
+      <dt>What happened</dt><dd>Splitting a 43-page update across six sub-agents produced fetches from the wrong page and confirmations for views that did not exist. Later, a write returned success but dropped the value.</dd>
+      <dt>Workaround</dt><dd>Sequential calls in batches of six or seven, a person checks one page before any bulk change, and a full audit afterwards.</dd>
+      <dt>Suggestion</dt><dd>A per-connector concurrency budget shared across sub-agents, with throttling returned as an explicit error. Part of this sits with Notion, and I would raise that part with them.</dd></dl></article>
+    <article><h3>5. A sub-agent committed outside its worktree</h3><dl>
+      <dt>What happened</dt><dd>During a plan run, one sub-agent committed to main in the primary checkout instead of the session's worktree: two stray commits. I have not pinned down why.</dd>
+      <dt>Workaround</dt><dd>I rewrote the two files on the session branch and reset main by hand. My plugin release guide, written later, forbids direct pushes to main.</dd>
+      <dt>Suggestion</dt><dd>Warn, or ask, before a sub-agent commits outside the session's worktree and branch.</dd></dl></article>
+    <article><h3>6. Usage limits cut verification passes</h3><dl>
+      <dt>What happened</dt><dd>The weekly limit stopped an eight-lens adversarial check after four lenses, before its refutation phase ran. In another workflow, the session limit cut off the last 12 agents of a 30-agent run.</dd>
+      <dt>Workaround</dt><dd>There, <span class="mono">resumeFromRunId</span> replayed the 18 finished agents from cache and re-ran only the 12 missing ones, which worked well. For the eight-lens check, I ran the four missing lenses directly in the session, without agents, and triaged the findings by hand. I now size workflows to the stakes.</dd>
+      <dt>Suggestion</dt><dd>Estimate a workflow's usage before launch, warn before it crosses the limit, and let me choose which phase to protect.</dd></dl></article>
+  </div>
+</section>
+
+<!-- FOUNDERS -->
+<section class="wide" id="founders">
+  <p class="label">What I'd bring to founders and VCs</p>
+  <h2>What carries over from this year</h2>
+  <ol class="founders">
+    <li><div><strong>I have sat in your seat.</strong> I co-founded and ran a B2B fintech that sold to private-equity funds: I owned the product, raised a pre-seed round and led a pivot from client feedback. I back three startups and have mentored 25+ student founding teams.</div></li>
+    <li><div><strong>VCs run funds too.</strong> Capital account statements, LP reporting and fund-agreement terms are the back office I have been rebuilding with Claude. I would start with a fund's platform team on its own operations, then take what works to its portfolio companies.</div></li>
+    <li><div><strong>I have been the regulated buyer.</strong> This year I made the case for a second AI vendor to a Chairman and costed it against the incumbent. Founders selling into finance need output a buyer can check: a blind second pass, an arbiter, no source, no value.</div></li>
+    <li><div><strong>Adoption starts with one task that hurts.</strong> Build the skill with the person who owns the task, a one-page guide in plain language, an eval with a planted failure, then a release playbook: one private marketplace, a pull request, a version bump and a tag. The skills and guides I write for my teams are in French.</div></li>
+    <li><div><strong>ROI on a business outcome.</strong> I made the case with a TCO model and report on on-time delivery and errors stopped before sending; agents and tokens I count as spend. Time saved per task, against a timed manual baseline, is my next measure.</div></li>
+  </ol>
+</section>
+
+<footer>
+  <div class="contact"><span>Olivier Malherbe</span><span>olivier.malherbe@outlook.fr</span><a href="https://www.linkedin.com/in/olivier-malherbe-306b4982/">linkedin.com/in/olivier-malherbe-306b4982</a></div>
+  <p>This page was built with Claude Code in September 2026.</p>
+</footer>
+
+</div>
+
+</body>
+</html>
